@@ -44,6 +44,7 @@ var createNewTaskElement=function(taskString){
 
 
 
+
 	//and appending.
 	listItem.appendChild(checkBox);
 	listItem.appendChild(label);
