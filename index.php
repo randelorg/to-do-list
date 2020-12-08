@@ -1,42 +1,138 @@
+<!--index.php-->
+
+<?php
+    include('php/ConnectToDB/Connect.php');
+
+    $query = " SELECT * FROM task_list ORDER BY task_list_id DESC";
+
+    $statement = $connect->prepare($query);
+
+    $statement->execute();
+
+    $result = $statement->fetchAll();
+?>
+
+<!DOCTYPE html>
 <html>
   <head>
-    <title>Todo App</title>
-    <link href='https://fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
-    <link rel="stylesheet" href="css/todoApp.css" type="text/css" media="screen" charset="utf-8">    
+      <title>To-Do List</title>  
+      <script src="js/googleapis.js"></script>
+      <link rel="stylesheet" href="css/style.css" />
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+      <style>
+      body
+      {
+        font-family: 'Comic Sans MS';
+      }
+
+      .list-group-item
+      {
+        font-size: 26px;
+      }
+      </style>
   </head>
   <body>
-    <div class="container">
-      <p>
-      <label> <span> <h1> LIST </h1></span> </label>
-        <form action="php/addTask.php" method="post" id="form">
-          <label for="new_task"> Add Task </label>
-          <input type="text" id="new_task" name="new_task" placeholder="Task here"></imput>
-          <button type="submit">ADD</button>
-        </form>
-      </p>
-      
-      <h3>Todo</h3>
-      <ul id="incomplete-tasks">
-        <li>
-          <input type="checkbox">
-          <label>Uncompleted task 1</label>
-          <input type="text"><button class="edit">Edit</button>
-          <button class="delete">Delete</button>
-        </li>
-      </ul>
-      
-      <h3>Completed</h3>
-      <ul id="completed-tasks">
-        <li>
-          <input type="checkbox" checked>
-          <label>Completed task 1</label><input type="text">
-          <button class="edit">Edit</button>
-          <button class="delete">Delete</button>
-      </li>
-      </ul>
-    </div>
-
-    <script type="text/javascript" src="js/todoApp.js"></script>
-
+    
+      <br />
+      <br />
+      <div class="container">
+      <h1 alignment="center">To-Do List</h1>
+      <br />
+      <div class="panel panel-default">
+        <div class="panel-heading">
+        <div class="row">
+          <div class="col-md-9">
+          <h3 class="panel-title">My To-Do List</h3>
+          </div>
+          <div class="col-md-3">
+          
+          </div>
+        </div>
+        </div>
+          <div class="panel-body">
+          <form method="post" id="to_do_form">
+            <span id="message"></span>
+            <div class="input-group">
+            <input type="text" name="task_name" id="task_name" class="form-control input-lg" autocomplete="off" placeholder="Name" />
+            <div class="input-group-btn">
+              <button type="submit" name="submit" id="submit" class="btn btn-success btn-lg"><span class="glyphicon glyphicon-plus"></span></button>
+            </div>
+            </div>
+          </form>
+          <br />
+          <div class="list-group">
+          <?php
+            foreach($result as $row)
+            {
+              $style = '';
+              if($row["task_status"] == 'yes')
+              {
+              $style = 'text-decoration: line-through';
+              }
+              echo '<a href="#" style="'.$style.'" class="list-group-item" id="list-group-item-'.$row["task_list_id"].'" data-id="'.$row["task_list_id"].'">'.$row["task_details"].' <span class="badge" data-id="'.$row["task_list_id"].'">X</span></a>';
+            }
+            ?>
+          </div>
+          </div>
+        </div>
+      </div>
   </body>
 </html>
+
+<script>
+ 
+ $(document).ready(function(){
+  
+  $(document).on('submit', '#to_do_form', function(event){
+   event.preventDefault();
+
+   if($('#task_name').val() == '')
+   {
+    $('#message').html('<div class="alert alert-danger">Enter Task Details</div>');
+    return false;
+   }
+   else
+   {
+    $('#submit').attr('disabled', 'disabled');
+    $.ajax({
+     url:"php/NewTask.php",
+     method:"POST",
+     data:$(this).serialize(),
+     success:function(data)
+     {
+      $('#submit').attr('disabled', false);
+      $('#to_do_form')[0].reset();
+      $('.list-group').prepend(data);
+     }
+    })
+   }
+  });
+
+  $(document).on('click', '.list-group-item', function(){
+   var task_list_id = $(this).data('id');
+   $.ajax({
+    url:"php/UpdateTask.php",
+    method:"POST",
+    data:{task_list_id:task_list_id},
+    success:function(data)
+    {
+     $('#list-group-item-'+task_list_id).css('text-decoration', 'line-through');
+    }
+   })
+  });
+
+  $(document).on('click', '.badge', function(){
+   var task_list_id = $(this).data('id');
+   $.ajax({
+    url:"php/DeleteTask.php",
+    method:"POST",
+    data:{task_list_id:task_list_id},
+    success:function(data)
+    {
+     $('#list-group-item-'+task_list_id).fadeOut('slow');
+    }
+   })
+  });
+
+ });
+</script>
