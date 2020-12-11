@@ -15,39 +15,32 @@
 <!DOCTYPE html>
 <html>
   <head>
-      <title>To-Do List</title>  
-      <script src="js/googleapis.js"></script>
-      <link rel="stylesheet" href="css/style.css" />
-      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-      <style>
-      body
-      {
-        font-family: 'Comic Sans MS';
-      }
+      <title>To-Do List</title>
 
-      .list-group-item
-      {
-        font-size: 26px;
-      }
-      </style>
+      <link rel="icon" href="img/icon.png"/>
+      <link rel="stylesheet" href="css/bootstrap.min.css" />
+      <link rel="stylesheet" href="css/font.css" />
+
+      <script src="js/googleapis.js"></script>
+      <script src="js/bootstrap.min.js"></script>
   </head>
   <body>
     
-      <br />
-      <br />
+      <br/>
+      <br/>
       <div class="container">
       <h1 alignment="center">To-Do List</h1>
-      <br />
+      <br/>
+
       <div class="panel panel-default">
         <div class="panel-heading">
-        <div class="row">
-          <div class="col-md-9">
-          <h3 class="panel-title">My To-Do List</h3>
+            <div class="row">
+                <div class="col-md-9">
+                  <h3 class="panel-title">My To-Do List</h3>
+                </div>
+            <div class="col-md-3">  
+            </div>
           </div>
-          <div class="col-md-3">
-          
-          </div>
-        </div>
         </div>
           <div class="panel-body">
           <form method="post" id="to_do_form">
@@ -61,17 +54,20 @@
           </form>
           <br />
           <div class="list-group">
-          <?php
-            foreach($result as $row)
-            {
-              $style = '';
-              if($row["task_status"] == 'yes')
+            <?php
+              //this will display the rows from the table
+              foreach($result as $row)
               {
-              $style = 'text-decoration: line-through';
+                $style = '';
+                //if the status are considered yes
+                //change the text-decoration to strike through
+                if($row["task_status"] == 'yes')
+                {
+                  $style = 'text-decoration: line-through';
+                }
+                echo '<a href="#" style="'.$style.'" class="list-group-item" id="list-group-item-'.$row["task_list_id"].'" data-id="'.$row["task_list_id"].'">'.$row["task_details"].' <span class="badge" data-id="'.$row["task_list_id"].'">X</span></a>';
               }
-              echo '<a href="#" style="'.$style.'" class="list-group-item" id="list-group-item-'.$row["task_list_id"].'" data-id="'.$row["task_list_id"].'">'.$row["task_details"].' <span class="badge" data-id="'.$row["task_list_id"].'">X</span></a>';
-            }
-            ?>
+              ?>
           </div>
           </div>
         </div>
@@ -116,7 +112,7 @@
     data:{task_list_id:task_list_id},
     success:function(data)
     {
-     $('#list-group-item-'+task_list_id).css('text-decoration', 'line-through');
+      $('#list-group-item-'+task_list_id).css('text-decoration', 'line-through');
     }
    })
   });
@@ -129,7 +125,7 @@
     data:{task_list_id:task_list_id},
     success:function(data)
     {
-     $('#list-group-item-'+task_list_id).fadeOut('slow');
+      $('#list-group-item-'+task_list_id).fadeOut('slow');
     }
    })
   });
